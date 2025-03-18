@@ -233,7 +233,7 @@ const handleCancel = () => {
     <!-- Add/Edit User Modal -->
     <a-modal
       :title="formState.isEdit ? 'Chỉnh sửa người dùng' : 'Thêm người dùng mới'"
-      :visible="formState.visible"
+      :open="formState.visible"
       :confirmLoading="loading"
       @ok="handleSubmit"
       @cancel="handleCancel"
