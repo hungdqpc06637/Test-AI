@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, h, defineComponent } from 'vue'
 import type { TableColumnsType } from 'ant-design-vue'
-import { 
-  UserOutlined, 
-  ShoppingCartOutlined, 
-  RiseOutlined, 
-  MoneyCollectOutlined 
+import {
+  UserOutlined,
+  ShoppingCartOutlined,
+  RiseOutlined,
+  MoneyCollectOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined
 } from '@ant-design/icons-vue'
 import { useDashboardStore } from '@/stores/dashboard'
 import * as echarts from 'echarts'
@@ -13,7 +15,6 @@ import * as echarts from 'echarts'
 const dashboardStore = useDashboardStore()
 const { stats, chartData, recentOrders } = dashboardStore
 
-// Initialize charts after component is mounted
 onMounted(() => {
   dashboardStore.fetchDashboardData()
   initRevenueChart()
@@ -25,7 +26,7 @@ onMounted(() => {
 const initRevenueChart = () => {
   const chartDom = document.getElementById('revenue-chart')
   if (!chartDom) return
-  
+
   const chart = echarts.init(chartDom)
   const option = {
     title: {
@@ -82,9 +83,9 @@ const initRevenueChart = () => {
       }
     ]
   }
-  
+
   chart.setOption(option)
-  
+
   // Handle resize
   window.addEventListener('resize', () => {
     chart.resize()
@@ -95,7 +96,7 @@ const initRevenueChart = () => {
 const initUserGrowthChart = () => {
   const chartDom = document.getElementById('user-growth-chart')
   if (!chartDom) return
-  
+
   const chart = echarts.init(chartDom)
   const option = {
     title: {
@@ -142,9 +143,9 @@ const initUserGrowthChart = () => {
       }
     ]
   }
-  
+
   chart.setOption(option)
-  
+
   // Handle resize
   window.addEventListener('resize', () => {
     chart.resize()
@@ -155,7 +156,7 @@ const initUserGrowthChart = () => {
 const initSalesDistributionChart = () => {
   const chartDom = document.getElementById('sales-distribution-chart')
   if (!chartDom) return
-  
+
   const chart = echarts.init(chartDom)
   const option = {
     title: {
@@ -203,9 +204,9 @@ const initSalesDistributionChart = () => {
       }
     ]
   }
-  
+
   chart.setOption(option)
-  
+
   // Handle resize
   window.addEventListener('resize', () => {
     chart.resize()
@@ -259,15 +260,15 @@ const columns: TableColumnsType = [
   { title: 'ID', dataIndex: 'id', key: 'id' },
   { title: 'Khách hàng', dataIndex: 'customer', key: 'customer' },
   { title: 'Ngày', dataIndex: 'date', key: 'date' },
-  { 
-    title: 'Số tiền', 
-    dataIndex: 'amount', 
+  {
+    title: 'Số tiền',
+    dataIndex: 'amount',
     key: 'amount',
     customRender: ({ text }) => formatCurrency(text as number)
   },
-  { 
-    title: 'Trạng thái', 
-    dataIndex: 'status', 
+  {
+    title: 'Trạng thái',
+    dataIndex: 'status',
     key: 'status',
     customRender: ({ text }) => {
       return h(
@@ -304,7 +305,7 @@ const columns: TableColumnsType = [
               <span v-if="stat.suffix">{{ stat.suffix }}</span>
             </div>
             <div class="stat-percent" :class="{ 'increase': stat.increase, 'decrease': !stat.increase }">
-              <a-icon :type="stat.increase ? 'arrow-up' : 'arrow-down'" />
+              <component :is="stat.increase ? ArrowUpOutlined : ArrowDownOutlined" />
               {{ stat.percent }}%
             </div>
           </div>
@@ -336,12 +337,8 @@ const columns: TableColumnsType = [
 
     <!-- Recent Orders Table -->
     <a-card :bordered="false" title="Đơn hàng gần đây" class="table-card">
-      <a-table
-        :dataSource="recentOrders"
-        :columns="columns"
-        :pagination="{ pageSize: 5 }"
-        :rowKey="(record: any) => record.id"
-      />
+      <a-table :dataSource="recentOrders" :columns="columns" :pagination="{ pageSize: 5 }"
+        :rowKey="(record: any) => record.id" />
     </a-card>
   </div>
 </template>
@@ -428,8 +425,8 @@ const columns: TableColumnsType = [
   .stat-value {
     font-size: 20px;
   }
-  
-  
+
+
   .chart {
     height: 250px;
   }
