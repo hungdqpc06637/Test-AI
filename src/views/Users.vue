@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { ref, reactive, computed, h } from 'vue'
 import type { TableColumnsType } from 'ant-design-vue'
-import { 
-  UserOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
-  CheckCircleOutlined, 
-  CloseCircleOutlined 
+import {
+  UserOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined
 } from '@ant-design/icons-vue'
 import { useUserStore, type User } from '@/stores/user'
+import AButton from 'ant-design-vue/lib/button'
 
 const userStore = useUserStore()
 const users = computed(() => userStore.users)
@@ -39,10 +40,10 @@ const formState = reactive({
 const searchText = ref('')
 const filteredUsers = computed(() => {
   if (!searchText.value) return users.value
-  
+
   const searchLower = searchText.value.toLowerCase()
-  return users.value.filter(user => 
-    user.name.toLowerCase().includes(searchLower) || 
+  return users.value.filter(user =>
+    user.name.toLowerCase().includes(searchLower) ||
     user.email.toLowerCase().includes(searchLower) ||
     user.role.toLowerCase().includes(searchLower)
   )
@@ -50,26 +51,26 @@ const filteredUsers = computed(() => {
 
 // Table columns
 const columns: TableColumnsType = [
-  { 
-    title: 'ID', 
-    dataIndex: 'id', 
+  {
+    title: 'ID',
+    dataIndex: 'id',
     key: 'id',
     width: 80
   },
-  { 
-    title: 'Tên', 
-    dataIndex: 'name', 
+  {
+    title: 'Tên',
+    dataIndex: 'name',
     key: 'name',
     sorter: (a: User, b: User) => a.name.localeCompare(b.name)
   },
-  { 
-    title: 'Email', 
-    dataIndex: 'email', 
-    key: 'email' 
+  {
+    title: 'Email',
+    dataIndex: 'email',
+    key: 'email'
   },
-  { 
-    title: 'Vai trò', 
-    dataIndex: 'role', 
+  {
+    title: 'Vai trò',
+    dataIndex: 'role',
     key: 'role',
     filters: [
       { text: 'Admin', value: 'Admin' },
@@ -78,9 +79,9 @@ const columns: TableColumnsType = [
     ],
     onFilter: (value: any, record: User) => record.role === value
   },
-  { 
-    title: 'Trạng thái', 
-    dataIndex: 'status', 
+  {
+    title: 'Trạng thái',
+    dataIndex: 'status',
     key: 'status',
     width: 120,
     filters: [
@@ -107,24 +108,24 @@ const columns: TableColumnsType = [
       )
     }
   },
-  { 
-    title: 'Thao tác', 
+  {
+    title: 'Thao tác',
     key: 'action',
     width: 120,
     customRender: ({ record }) => {
       return h('div', { style: { display: 'flex', gap: '8px' } }, [
         h(
-          'a-button',
+          AButton,
           {
             type: 'primary',
             shape: 'circle',
             size: 'small',
             onClick: () => handleEdit(record as User)
           },
-          () => h(EditOutlined)
+          [h(EditOutlined)]
         ),
         h(
-          'a-button',
+          AButton,
           {
             type: 'primary',
             danger: true,
@@ -132,7 +133,7 @@ const columns: TableColumnsType = [
             size: 'small',
             onClick: () => handleDelete(record as User)
           },
-          () => h(DeleteOutlined)
+          [h(DeleteOutlined)]
         )
       ])
     }
@@ -186,14 +187,14 @@ const formRef = ref()
 const handleSubmit = () => {
   formRef.value.validate().then(() => {
     loading.value = true
-    
+
     setTimeout(() => {
       if (formState.isEdit && formState.editId !== null) {
         userStore.updateUser(formState.editId, formState.form)
       } else {
         userStore.addUser(formState.form)
       }
-      
+
       formState.visible = false
       loading.value = false
     }, 500)
@@ -209,49 +210,29 @@ const handleCancel = () => {
 <template>
   <div class="users-container">
     <div class="users-header">
-      <a-input-search
-        v-model:value="searchText"
-        placeholder="Tìm kiếm người dùng"
-        style="width: 300px"
-        enter-button
-      />
+      <a-input-search v-model:value="searchText" placeholder="Tìm kiếm người dùng" style="width: 300px" enter-button />
       <a-button type="primary" @click="handleAdd">
         <template #icon><user-outlined /></template>
         Thêm người dùng
       </a-button>
     </div>
-    
+
     <!-- Users Table -->
-    <a-table
-      :dataSource="filteredUsers"
-      :columns="columns"
-      :loading="loading"
-      :pagination="{ pageSize: 10 }"
-      :rowKey="(record: User) => record.id"
-    />
-    
+    <a-table :dataSource="filteredUsers" :columns="columns" :loading="loading" :pagination="{ pageSize: 10 }"
+      :rowKey="(record: User) => record.id" />
+
     <!-- Add/Edit User Modal -->
-    <a-modal
-      :title="formState.isEdit ? 'Chỉnh sửa người dùng' : 'Thêm người dùng mới'"
-      :open="formState.visible"
-      :confirmLoading="loading"
-      @ok="handleSubmit"
-      @cancel="handleCancel"
-    >
-      <a-form
-        ref="formRef"
-        :model="formState.form"
-        :rules="formState.rules"
-        layout="vertical"
-      >
+    <a-modal :title="formState.isEdit ? 'Chỉnh sửa người dùng' : 'Thêm người dùng mới'" :open="formState.visible"
+      :confirmLoading="loading" @ok="handleSubmit" @cancel="handleCancel">
+      <a-form ref="formRef" :model="formState.form" :rules="formState.rules" layout="vertical">
         <a-form-item label="Tên" name="name">
           <a-input v-model:value="formState.form.name" placeholder="Nhập tên người dùng" />
         </a-form-item>
-        
+
         <a-form-item label="Email" name="email">
           <a-input v-model:value="formState.form.email" placeholder="Nhập email" />
         </a-form-item>
-        
+
         <a-form-item label="Vai trò" name="role">
           <a-select v-model:value="formState.form.role" placeholder="Chọn vai trò">
             <a-select-option v-for="option in roleOptions" :key="option.value" :value="option.value">
@@ -259,7 +240,7 @@ const handleCancel = () => {
             </a-select-option>
           </a-select>
         </a-form-item>
-        
+
         <a-form-item label="Trạng thái" name="status">
           <a-switch v-model:checked="formState.form.status" />
           <span style="margin-left: 8px">{{ formState.form.status ? 'Hoạt động' : 'Vô hiệu' }}</span>
